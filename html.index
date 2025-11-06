@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Love Test Page</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #111;
+  cursor: none !important;
+  font-family: 'Fredoka One', cursive;
+}
+
+#mainText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 5em;
+  font-weight: 700;
+  text-shadow: 2px 2px 10px #ff1493;
+  z-index: 10;
+  pointer-events: none;
+  color: #ff69b4;
+}
+
+.heart {
+  position: absolute;
+  font-size: 25px;
+  color: #ff69b4;
+  pointer-events: none;
+}
+
+.rainText, .burstText, .burstSmall {
+  position: absolute;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.rainText {
+  font-size: 2.5em;
+  color: #ff69b4;
+  opacity: 0.8;
+}
+
+.burstSmall {
+  font-size: 1.2em;
+  color: #fff;
+  opacity: 1;
+}
+
+.burstText {
+  color: #ff69b4;
+  opacity: 0.9;
+}
+</style>
+</head>
+<body>
+
+<div id="mainText">I love you Jainayah ❤️</div>
+<audio id="clickSound" src="The 1975 - About You (Official) - nabila.mp3"></audio>
+
+<script>
+const body = document.body;
+const audio = document.getElementById('clickSound');
+let audioPlayed = false;
+
+/* --- Custom Heart Cursor --- */
+const cursor = document.createElement('div');
+cursor.style.position = 'fixed';
+cursor.style.width = '25px';
+cursor.style.height = '25px';
+cursor.style.pointerEvents = 'none';
+cursor.style.zIndex = 9999;
+cursor.innerHTML = '❤️';
+body.appendChild(cursor);
+
+document.addEventListener('mousemove', e=>{
+  cursor.style.left = (e.clientX - 12) + 'px';
+  cursor.style.top = (e.clientY - 12) + 'px';
+});
+
+/* --- Background Hearts --- */
+function createHeart(){
+  const x = Math.random()*window.innerWidth;
+  const positions = [x, window.innerWidth - x];
+
+  positions.forEach(pos=>{
+    const heart = document.createElement('div');
+    heart.className='heart';
+    heart.textContent='❤️';
+    heart.style.left=pos+'px';
+    heart.style.bottom='0px';
+    body.appendChild(heart);
+
+    const duration = 3000;
+    const start = performance.now();
+
+    function animate(time){
+      const progress = (time-start)/duration;
+      if(progress<1){
+        heart.style.bottom = progress*(window.innerHeight+50)+'px';
+        requestAnimationFrame(animate);
+      } else heart.remove();
+    }
+    requestAnimationFrame(animate);
+  });
+}
+setInterval(createHeart, 300);
+
+/* --- Falling Text Lines --- */
+function createRainText(){
+  const x = Math.random()*window.innerWidth;
+  const text = document.createElement('div');
+  text.className='rainText';
+  text.textContent='I love you';
+  text.style.left = x+'px';
+  text.style.top='-30px';
+  body.appendChild(text);
+
+  const mirror = document.createElement('div');
+  mirror.className='rainText';
+  mirror.textContent='I love you';
+  mirror.style.left = (window.innerWidth - x)+'px';
+  mirror.style.top='-30px';
+  body.appendChild(mirror);
+
+  const start = performance.now();
+  const duration = 1200;
+
+  function animate(time){
+    const progress = (time-start)/duration;
+    if(progress<1){
+      const topPos = progress*(window.innerHeight+50);
+      text.style.top = topPos+'px';
+      mirror.style.top = topPos+'px';
+      requestAnimationFrame(animate);
+    } else {
+      text.remove();
+      mirror.remove();
+    }
+  }
+  requestAnimationFrame(animate);
+}
+setInterval(createRainText, 150);
+
+/* --- Click Burst --- */
+function createBurst(x, y){
+  // Small white letters
+  const smallCount = 12;
+  for(let i=0;i<smallCount;i++){
+    const burst = document.createElement('div');
+    burst.className='burstSmall';
+    burst.textContent='I love you baby';
+    burst.style.left = x+'px';
+    burst.style.top = y+'px';
+    body.appendChild(burst);
+
+    const angle = Math.random()*2*Math.PI;
+    const distance = 40 + Math.random()*20;
+    const dx = Math.cos(angle)*distance;
+    const dy = Math.sin(angle)*distance;
+
+    const start = performance.now();
+    const duration = 400 + Math.random()*100;
+
+    function animate(time){
+      const progress = (time-start)/duration;
+      if(progress<1){
+        burst.style.left = x + dx*progress+'px';
+        burst.style.top = y + dy*progress+'px';
+        burst.style.opacity = 1-progress;
+        requestAnimationFrame(animate);
+      } else burst.remove();
+    }
+    requestAnimationFrame(animate);
+  }
+
+  // Large pink letters with trail
+  const largeCount = 18;
+  for(let i=0;i<largeCount;i++){
+    const size = Math.random()<0.5?2.5:1.8;
+    const burst = document.createElement('div');
+    burst.className='burstText';
+    burst.style.fontSize = size+'em';
+    burst.textContent='I love you baby';
+    burst.style.left = x+'px';
+    burst.style.top = y+'px';
+    body.appendChild(burst);
+
+    const angle = Math.random()*2*Math.PI;
+    const distance = 180 + Math.random()*50;
+    const dx = Math.cos(angle)*distance;
+    const dy = Math.sin(angle)*distance;
+
+    const start = performance.now();
+    const duration = 1400 + Math.random()*300;
+
+    function animate(time){
+      const progress = (time-start)/duration;
+      if(progress<1){
+        const moveX = x + dx*progress;
+        const moveY = y + dy*progress;
+        burst.style.left = moveX+'px';
+        burst.style.top = moveY+'px';
+        burst.style.opacity = 1-progress;
+
+        // Trail
+        for(let t=1;t<=3;t++){
+          const trail = burst.cloneNode(true);
+          trail.style.opacity = 0.25/t;
+          trail.style.fontSize = size*(1-0.1*t)+'em';
+          trail.style.left = moveX - t*3 + 'px';
+          trail.style.top = moveY - t*3 + 'px';
+          body.appendChild(trail);
+          setTimeout(()=>trail.remove(),250 + t*50);
+        }
+
+        requestAnimationFrame(animate);
+      } else burst.remove();
+    }
+    requestAnimationFrame(animate);
+  }
+}
+
+document.addEventListener('click', e=>{
+  createBurst(e.clientX, e.clientY);
+  if(!audioPlayed){
+    audio.play();
+    audioPlayed=true;
+  }
+});
+
+/* --- Pink Fireworks --- */
+function createFirework(){
+  const sparkCount = 30 + Math.floor(Math.random()*20);
+  const xOrigin = Math.random()*window.innerWidth;
+  const yOrigin = Math.random()*window.innerHeight/2;
+
+  for(let i=0;i<sparkCount;i++){
+    const spark = document.createElement('div');
+    spark.style.position='absolute';
+    spark.style.left=xOrigin+'px';
+    spark.style.top=yOrigin+'px';
+    spark.style.width='4px';
+    spark.style.height='12px';
+    spark.style.background='#ff69b4';
+    spark.style.borderRadius='2px';
+    spark.style.pointerEvents='none';
+    spark.style.zIndex=5;
+    body.appendChild(spark);
+
+    const angle = Math.random()*2*Math.PI;
+    const distance = 150 + Math.random()*50;
+    const dx = Math.cos(angle)*distance;
+    const dy = Math.sin(angle)*distance;
+
+    const duration = 1000 + Math.random()*300;
+    const start = performance.now();
+
+    function animate(time){
+      const progress = (time-start)/duration;
+      if(progress<1){
+        spark.style.left = xOrigin + dx*progress+'px';
+        spark.style.top = yOrigin + dy*progress+'px';
+        spark.style.opacity = 1-progress;
+        requestAnimationFrame(animate);
+      } else spark.remove();
+    }
+    requestAnimationFrame(animate);
+  }
+}
+setInterval(createFirework, 400);
+
+</script>
+</body>
+</html>
