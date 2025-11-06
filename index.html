@@ -10,10 +10,14 @@ html, body {
   padding: 0;
   width: 100vw;
   height: 100vh;
-  overflow: hidden; /* locks scrolling both horizontally and vertically */
+  overflow: hidden; /* locks scrolling */
   background: #111;
   cursor: none !important;
   font-family: 'Fredoka One', cursive;
+  user-select: none;        /* prevents text selection */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 #mainText {
@@ -114,7 +118,7 @@ function createMirroredHeart(){
     function animate(time){
       const progress = (time-start)/duration;
       if(progress < 1){
-        heart.style.transform = `translateY(${progress*(window.innerHeight+50)}px)`;
+        heart.style.transform = `translateY(${progress*(window.innerHeight-50)}px)`;
         requestAnimationFrame(animate);
       } else heart.remove();
     }
@@ -149,7 +153,7 @@ function createRainLine() {
   function animate(time){
     const progress = (time-start)/duration;
     if(progress<1){
-      const topPos = progress*(window.innerHeight+50);
+      const topPos = progress*(window.innerHeight-50);
       text.style.transform = `translateY(${topPos}px)`;
       mirror.style.transform = `translateY(${topPos}px)`;
       requestAnimationFrame(animate);
@@ -164,6 +168,9 @@ setInterval(createRainLine, isMobile ? 200 : 100);
 
 // Burst Function
 function createBurst(x, y){
+  const marginX = window.innerWidth*0.05;
+  const marginY = window.innerHeight*0.05;
+
   // White letters first
   const whiteCount = isMobile ? 4 : 8;
   const whiteLetters = [];
@@ -178,11 +185,11 @@ function createBurst(x, y){
     whiteLetters.push(burst);
 
     const angle = Math.random()*2*Math.PI;
-    const distance = 200*scale + Math.random()*100*scale;
+    const distance = Math.min(200*scale + Math.random()*100*scale, window.innerWidth/2 - marginX);
     const dx = Math.cos(angle)*distance;
     const dy = Math.sin(angle)*distance;
     const start = performance.now();
-    const duration = isMobile ? 2500 : 2500;
+    const duration = 2500;
 
     function animate(time){
       const progress = (time-start)/duration;
@@ -208,7 +215,7 @@ function createBurst(x, y){
       body.appendChild(burst);
 
       const angle = Math.random()*2*Math.PI;
-      const distance = 700*scale + Math.random()*200*scale;
+      const distance = Math.min(700*scale + Math.random()*200*scale, window.innerWidth/2 - marginX);
       const dx = Math.cos(angle)*distance;
       const dy = Math.sin(angle)*distance;
       const start = performance.now();
@@ -221,19 +228,6 @@ function createBurst(x, y){
           const moveY = dy*progress;
           burst.style.transform = `translate(${moveX}px,${moveY}px)`;
           burst.style.opacity = 1-progress;
-
-          // Trail
-          for(let t=1;t<=3;t++){
-            const trail = burst.cloneNode(true);
-            trail.style.position='fixed';
-            trail.style.fontSize = `${size*(1-0.1*t)}em`;
-            trail.style.transform = `translate(${moveX - t*3}px,${moveY - t*3}px)`;
-            trail.style.opacity = 0.25/t;
-            trail.style.zIndex = 9000;
-            body.appendChild(trail);
-            setTimeout(()=>trail.remove(), 300 + t*50);
-          }
-
           requestAnimationFrame(animate);
         } else burst.remove();
       }
