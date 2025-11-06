@@ -10,18 +10,18 @@ html, body {
   padding: 0;
   width: 100vw;
   height: 100vh;
-  overflow: hidden; /* locks scrolling */
+  overflow: hidden; /* lock scrolling */
   background: #111;
   cursor: none !important;
   font-family: 'Fredoka One', cursive;
-  user-select: none;        /* prevents text selection */
+  user-select: none;        /* disable text selection */
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
 }
 
 #mainText {
-  position: absolute;
+  position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -34,16 +34,13 @@ html, body {
   color: #ff69b4;
 }
 
-.heart {
-  position: absolute;
-  color: #ff69b4;
+.heart, .rainText, .burstText, .burstSmall {
+  position: fixed; /* changed from absolute */
   pointer-events: none;
 }
 
-.rainText, .burstText, .burstSmall {
-  position: absolute;
-  font-weight: 700;
-  pointer-events: none;
+.heart {
+  color: #ff69b4;
 }
 
 .rainText {
@@ -78,11 +75,9 @@ let audioPlayed = false;
 // Detect mobile
 const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 const scale = isMobile ? 0.6 : 1;
-
-// Scale main text
 document.getElementById('mainText').style.fontSize = `${5*scale}em`;
 
-// Custom Heart Cursor
+// Custom heart cursor
 const cursor = document.createElement('div');
 cursor.style.position = 'fixed';
 cursor.style.width = `${30*scale}px`;
@@ -132,11 +127,13 @@ function createRainLine() {
   const marginX = window.innerWidth*0.05;
   const x = marginX + Math.random()*(window.innerWidth-2*marginX);
   const fontSize = 2.5*scale;
+
   const text = document.createElement('div');
   text.className='rainText';
   text.textContent='I love you';
   text.style.fontSize = `${fontSize}em`;
   text.style.left = x+'px';
+  text.style.top = '-30px';
   body.appendChild(text);
 
   const mirrorX = window.innerWidth - x;
@@ -145,6 +142,7 @@ function createRainLine() {
   mirror.textContent='I love you';
   mirror.style.fontSize = `${fontSize}em`;
   mirror.style.left = mirrorX+'px';
+  mirror.style.top = '-30px';
   body.appendChild(mirror);
 
   const duration = isMobile ? 1500 : 1200;
@@ -268,7 +266,7 @@ function createFirework(){
 
   for(let i=0;i<sparkCount;i++){
     const spark = document.createElement('div');
-    spark.style.position='absolute';
+    spark.style.position='fixed';
     spark.style.left=xOrigin+'px';
     spark.style.top=yOrigin+'px';
     spark.style.width=`${4*scale}px`;
