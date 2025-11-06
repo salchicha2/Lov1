@@ -14,10 +14,11 @@ html, body {
   background: #111;
   cursor: none !important;
   font-family: 'Fredoka One', cursive;
-  user-select: none;        /* disable text selection */
+  user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
+  touch-action: none;
 }
 
 #mainText {
@@ -35,7 +36,7 @@ html, body {
 }
 
 .heart, .rainText, .burstText, .burstSmall {
-  position: fixed; /* changed from absolute */
+  position: fixed;
   pointer-events: none;
 }
 
@@ -71,8 +72,6 @@ html, body {
 const body = document.body;
 const audio = document.getElementById('clickSound');
 let audioPlayed = false;
-
-// Detect mobile
 const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 const scale = isMobile ? 0.6 : 1;
 document.getElementById('mainText').style.fontSize = `${5*scale}em`;
@@ -88,15 +87,14 @@ cursor.style.userSelect = 'none';
 cursor.style.fontSize = `${30*scale}px`;
 cursor.innerHTML = '❤️';
 body.appendChild(cursor);
-
 document.addEventListener('mousemove', e=>{
   cursor.style.left = (e.clientX - 15*scale) + 'px';
   cursor.style.top = (e.clientY - 15*scale) + 'px';
 });
 
-// Background Hearts
+// Background hearts
 function createMirroredHeart(){
-  const x = Math.random()*window.innerWidth;
+  const x = Math.random()*(window.innerWidth*0.9);
   const positions = [x, window.innerWidth - x];
   positions.forEach(pos=>{
     const heart = document.createElement('div');
@@ -113,7 +111,7 @@ function createMirroredHeart(){
     function animate(time){
       const progress = (time-start)/duration;
       if(progress < 1){
-        heart.style.transform = `translateY(${progress*(window.innerHeight-50)}px)`;
+        heart.style.transform = `translateY(${progress*(window.innerHeight+50)}px)`; // allow slightly off-screen
         requestAnimationFrame(animate);
       } else heart.remove();
     }
@@ -122,7 +120,7 @@ function createMirroredHeart(){
 }
 setInterval(createMirroredHeart, isMobile ? 500 : 300);
 
-// Rain Columns
+// Rain columns
 function createRainLine() {
   const marginX = window.innerWidth*0.05;
   const x = marginX + Math.random()*(window.innerWidth-2*marginX);
@@ -151,7 +149,7 @@ function createRainLine() {
   function animate(time){
     const progress = (time-start)/duration;
     if(progress<1){
-      const topPos = progress*(window.innerHeight-50);
+      const topPos = progress*(window.innerHeight+50); // allow slightly off-screen
       text.style.transform = `translateY(${topPos}px)`;
       mirror.style.transform = `translateY(${topPos}px)`;
       requestAnimationFrame(animate);
@@ -164,14 +162,10 @@ function createRainLine() {
 }
 setInterval(createRainLine, isMobile ? 200 : 100);
 
-// Burst Function
+// Burst
 function createBurst(x, y){
-  const marginX = window.innerWidth*0.05;
-  const marginY = window.innerHeight*0.05;
-
-  // White letters first
-  const whiteCount = isMobile ? 4 : 8;
   const whiteLetters = [];
+  const whiteCount = isMobile ? 4 : 8;
   for(let i=0;i<whiteCount;i++){
     const burst = document.createElement('div');
     burst.textContent = 'I love you baby';
@@ -183,7 +177,7 @@ function createBurst(x, y){
     whiteLetters.push(burst);
 
     const angle = Math.random()*2*Math.PI;
-    const distance = Math.min(200*scale + Math.random()*100*scale, window.innerWidth/2 - marginX);
+    const distance = 200*scale + Math.random()*100*scale; // allow partially off-screen
     const dx = Math.cos(angle)*distance;
     const dy = Math.sin(angle)*distance;
     const start = performance.now();
@@ -213,7 +207,7 @@ function createBurst(x, y){
       body.appendChild(burst);
 
       const angle = Math.random()*2*Math.PI;
-      const distance = Math.min(700*scale + Math.random()*200*scale, window.innerWidth/2 - marginX);
+      const distance = 400*scale + Math.random()*200*scale; // allow far spread
       const dx = Math.cos(angle)*distance;
       const dy = Math.sin(angle)*distance;
       const start = performance.now();
@@ -232,7 +226,7 @@ function createBurst(x, y){
       requestAnimationFrame(animate);
     }
 
-    // Fade white letters after pink letters appear
+    // Fade white letters
     setTimeout(()=>{
       whiteLetters.forEach(burst=>{
         const startFade = performance.now();
@@ -261,7 +255,7 @@ document.addEventListener('click', e=>{
 // Pink Fireworks
 function createFirework(){
   const sparkCount = (isMobile ? 20 : 30) + Math.floor(Math.random()*10);
-  const xOrigin = Math.random()*window.innerWidth;
+  const xOrigin = Math.random()*window.innerWidth*0.9 + window.innerWidth*0.05;
   const yOrigin = Math.random()*window.innerHeight/2;
 
   for(let i=0;i<sparkCount;i++){
