@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Love Test Page</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+<title>Love Page</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Fredoka+One&display=swap" rel="stylesheet">
 <style>
 html, body {
   margin: 0;
@@ -20,6 +20,7 @@ html, body {
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 5em;
+  font-family: 'Pacifico', cursive;
   font-weight: 700;
   text-shadow: 2px 2px 10px #ff1493;
   z-index: 10;
@@ -29,7 +30,6 @@ html, body {
 
 .heart {
   position: absolute;
-  font-size: 25px;
   color: #ff69b4;
   pointer-events: none;
 }
@@ -41,18 +41,19 @@ html, body {
 }
 
 .rainText {
-  font-size: 2.5em;
+  font-family: 'Fredoka One', cursive;
   color: #ff69b4;
   opacity: 0.8;
 }
 
 .burstSmall {
-  font-size: 1.2em;
+  font-family: 'Fredoka One', cursive;
   color: #fff;
   opacity: 1;
 }
 
 .burstText {
+  font-family: 'Fredoka One', cursive;
   color: #ff69b4;
   opacity: 0.9;
 }
@@ -68,75 +69,85 @@ const body = document.body;
 const audio = document.getElementById('clickSound');
 let audioPlayed = false;
 
-/* --- Custom Heart Cursor --- */
+// Detect mobile
+const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+const scale = isMobile ? 0.6 : 1;
+
+// Scale main text for mobile
+document.getElementById('mainText').style.fontSize = `${5*scale}em`;
+
+// Custom Heart Cursor
 const cursor = document.createElement('div');
 cursor.style.position = 'fixed';
-cursor.style.width = '25px';
-cursor.style.height = '25px';
+cursor.style.width = `${30*scale}px`;
+cursor.style.height = `${30*scale}px`;
 cursor.style.pointerEvents = 'none';
 cursor.style.zIndex = 9999;
+cursor.style.userSelect = 'none';
+cursor.style.fontSize = `${30*scale}px`;
 cursor.innerHTML = '❤️';
 body.appendChild(cursor);
 
 document.addEventListener('mousemove', e=>{
-  cursor.style.left = (e.clientX - 12) + 'px';
-  cursor.style.top = (e.clientY - 12) + 'px';
+  cursor.style.left = (e.clientX - 15*scale) + 'px';
+  cursor.style.top = (e.clientY - 15*scale) + 'px';
 });
 
-/* --- Background Hearts --- */
-function createHeart(){
+// Background Hearts
+function createMirroredHeart(){
   const x = Math.random()*window.innerWidth;
   const positions = [x, window.innerWidth - x];
-
   positions.forEach(pos=>{
     const heart = document.createElement('div');
     heart.className='heart';
+    heart.style.fontSize = `${40*scale}px`;
     heart.textContent='❤️';
     heart.style.left=pos+'px';
     heart.style.bottom='0px';
     body.appendChild(heart);
 
-    const duration = 3000;
+    const duration = isMobile ? 4000 : 3000;
     const start = performance.now();
 
     function animate(time){
       const progress = (time-start)/duration;
-      if(progress<1){
-        heart.style.bottom = progress*(window.innerHeight+50)+'px';
+      if(progress < 1){
+        heart.style.transform = `translateY(${progress*(window.innerHeight+50)}px)`;
         requestAnimationFrame(animate);
       } else heart.remove();
     }
     requestAnimationFrame(animate);
   });
 }
-setInterval(createHeart, 300);
+setInterval(createMirroredHeart, isMobile ? 500 : 300);
 
-/* --- Falling Text Lines --- */
-function createRainText(){
+// Rain Columns
+function createRainLine() {
   const x = Math.random()*window.innerWidth;
+  const fontSize = 2.5*scale;
   const text = document.createElement('div');
   text.className='rainText';
   text.textContent='I love you';
+  text.style.fontSize = `${fontSize}em`;
   text.style.left = x+'px';
-  text.style.top='-30px';
   body.appendChild(text);
 
   const mirror = document.createElement('div');
   mirror.className='rainText';
   mirror.textContent='I love you';
+  mirror.style.fontSize = `${fontSize}em`;
   mirror.style.left = (window.innerWidth - x)+'px';
-  mirror.style.top='-30px';
   body.appendChild(mirror);
 
+  const duration = isMobile ? 1500 : 1200;
   const start = performance.now();
-  const duration = 1200;
 
   function animate(time){
     const progress = (time-start)/duration;
     if(progress<1){
       const topPos = progress*(window.innerHeight+50);
-      text.style.top = topPos+'px';
-      mirror.style.top = topPos+'px';
+      text.style.transform = `translateY(${topPos}px)`;
+      mirror.style.transform = `translateY(${topPos}px)`;
       requestAnimationFrame(animate);
     } else {
       text.remove();
@@ -145,85 +156,102 @@ function createRainText(){
   }
   requestAnimationFrame(animate);
 }
-setInterval(createRainText, 150);
+setInterval(createRainLine, isMobile ? 200 : 100);
 
-/* --- Click Burst --- */
+// Burst Function
 function createBurst(x, y){
-  // Small white letters
-  const smallCount = 12;
-  for(let i=0;i<smallCount;i++){
+  // White letters
+  const whiteCount = isMobile ? 4 : 8;
+  const whiteLetters = [];
+  for(let i=0;i<whiteCount;i++){
     const burst = document.createElement('div');
+    burst.textContent = 'I love you baby';
     burst.className='burstSmall';
-    burst.textContent='I love you baby';
+    burst.style.fontSize = `${2*scale}em`;
     burst.style.left = x+'px';
     burst.style.top = y+'px';
     body.appendChild(burst);
+    whiteLetters.push(burst);
 
     const angle = Math.random()*2*Math.PI;
-    const distance = 40 + Math.random()*20;
+    const distance = 200*scale + Math.random()*100*scale;
     const dx = Math.cos(angle)*distance;
     const dy = Math.sin(angle)*distance;
-
     const start = performance.now();
-    const duration = 400 + Math.random()*100;
+    const duration = isMobile ? 2500 : 2500;
 
     function animate(time){
       const progress = (time-start)/duration;
       if(progress<1){
-        burst.style.left = x + dx*progress+'px';
-        burst.style.top = y + dy*progress+'px';
-        burst.style.opacity = 1-progress;
+        burst.style.transform = `translate(${dx*progress}px,${dy*progress}px)`;
         requestAnimationFrame(animate);
-      } else burst.remove();
+      }
     }
     requestAnimationFrame(animate);
   }
 
-  // Large pink letters with trail
-  const largeCount = 18;
-  for(let i=0;i<largeCount;i++){
-    const size = Math.random()<0.5?2.5:1.8;
-    const burst = document.createElement('div');
-    burst.className='burstText';
-    burst.style.fontSize = size+'em';
-    burst.textContent='I love you baby';
-    burst.style.left = x+'px';
-    burst.style.top = y+'px';
-    body.appendChild(burst);
+  // Pink letters delayed
+  setTimeout(()=>{
+    const pinkCount = isMobile ? 3 : 6;
+    for(let i=0;i<pinkCount;i++){
+      const size = Math.random()<0.5?3*scale:2.5*scale;
+      const burst = document.createElement('div');
+      burst.textContent='I love you baby';
+      burst.className='burstText';
+      burst.style.fontSize = `${size}em`;
+      burst.style.left = x+'px';
+      burst.style.top = y+'px';
+      body.appendChild(burst);
 
-    const angle = Math.random()*2*Math.PI;
-    const distance = 180 + Math.random()*50;
-    const dx = Math.cos(angle)*distance;
-    const dy = Math.sin(angle)*distance;
+      const angle = Math.random()*2*Math.PI;
+      const distance = 700*scale + Math.random()*200*scale;
+      const dx = Math.cos(angle)*distance;
+      const dy = Math.sin(angle)*distance;
+      const start = performance.now();
+      const duration = 3000;
 
-    const start = performance.now();
-    const duration = 1400 + Math.random()*300;
+      function animate(time){
+        const progress = (time-start)/duration;
+        if(progress<1){
+          const moveX = dx*progress;
+          const moveY = dy*progress;
+          burst.style.transform = `translate(${moveX}px,${moveY}px)`;
+          burst.style.opacity = 1-progress;
 
-    function animate(time){
-      const progress = (time-start)/duration;
-      if(progress<1){
-        const moveX = x + dx*progress;
-        const moveY = y + dy*progress;
-        burst.style.left = moveX+'px';
-        burst.style.top = moveY+'px';
-        burst.style.opacity = 1-progress;
+          // Trail
+          for(let t=1;t<=3;t++){
+            const trail = burst.cloneNode(true);
+            trail.style.position='fixed';
+            trail.style.fontSize = `${size*(1-0.1*t)}em`;
+            trail.style.transform = `translate(${moveX - t*3}px,${moveY - t*3}px)`;
+            trail.style.opacity = 0.25/t;
+            trail.style.zIndex = 9000;
+            body.appendChild(trail);
+            setTimeout(()=>trail.remove(), 300 + t*50);
+          }
 
-        // Trail
-        for(let t=1;t<=3;t++){
-          const trail = burst.cloneNode(true);
-          trail.style.opacity = 0.25/t;
-          trail.style.fontSize = size*(1-0.1*t)+'em';
-          trail.style.left = moveX - t*3 + 'px';
-          trail.style.top = moveY - t*3 + 'px';
-          body.appendChild(trail);
-          setTimeout(()=>trail.remove(),250 + t*50);
+          requestAnimationFrame(animate);
+        } else burst.remove();
+      }
+      requestAnimationFrame(animate);
+    }
+
+    // Fade white letters
+    setTimeout(()=>{
+      whiteLetters.forEach(burst=>{
+        const startFade = performance.now();
+        const fadeDuration = 1200;
+        function fade(time){
+          const progress = (time-startFade)/fadeDuration;
+          if(progress<1){
+            burst.style.opacity = 1 - progress;
+            requestAnimationFrame(fade);
+          } else burst.remove();
         }
-
-        requestAnimationFrame(animate);
-      } else burst.remove();
-    }
-    requestAnimationFrame(animate);
-  }
+        requestAnimationFrame(fade);
+      });
+    }, 800);
+  }, 400);
 }
 
 document.addEventListener('click', e=>{
@@ -234,9 +262,9 @@ document.addEventListener('click', e=>{
   }
 });
 
-/* --- Pink Fireworks --- */
+// Pink Fireworks
 function createFirework(){
-  const sparkCount = 30 + Math.floor(Math.random()*20);
+  const sparkCount = (isMobile ? 20 : 30) + Math.floor(Math.random()*10);
   const xOrigin = Math.random()*window.innerWidth;
   const yOrigin = Math.random()*window.innerHeight/2;
 
@@ -245,8 +273,8 @@ function createFirework(){
     spark.style.position='absolute';
     spark.style.left=xOrigin+'px';
     spark.style.top=yOrigin+'px';
-    spark.style.width='4px';
-    spark.style.height='12px';
+    spark.style.width=`${4*scale}px`;
+    spark.style.height=`${12*scale}px`;
     spark.style.background='#ff69b4';
     spark.style.borderRadius='2px';
     spark.style.pointerEvents='none';
@@ -254,18 +282,16 @@ function createFirework(){
     body.appendChild(spark);
 
     const angle = Math.random()*2*Math.PI;
-    const distance = 150 + Math.random()*50;
+    const distance = 150*scale + Math.random()*50*scale;
     const dx = Math.cos(angle)*distance;
     const dy = Math.sin(angle)*distance;
-
     const duration = 1000 + Math.random()*300;
     const start = performance.now();
 
     function animate(time){
       const progress = (time-start)/duration;
       if(progress<1){
-        spark.style.left = xOrigin + dx*progress+'px';
-        spark.style.top = yOrigin + dy*progress+'px';
+        spark.style.transform = `translate(${dx*progress}px,${dy*progress}px)`;
         spark.style.opacity = 1-progress;
         requestAnimationFrame(animate);
       } else spark.remove();
@@ -273,8 +299,7 @@ function createFirework(){
     requestAnimationFrame(animate);
   }
 }
-setInterval(createFirework, 400);
-
+setInterval(createFirework, isMobile ? 600 : 400);
 </script>
 </body>
 </html>
