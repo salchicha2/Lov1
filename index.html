@@ -8,7 +8,9 @@
 html, body {
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden; /* locks scrolling both horizontally and vertically */
   background: #111;
   cursor: none !important;
   font-family: 'Fredoka One', cursive;
@@ -73,7 +75,7 @@ let audioPlayed = false;
 const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 const scale = isMobile ? 0.6 : 1;
 
-// Scale main text for mobile
+// Scale main text
 document.getElementById('mainText').style.fontSize = `${5*scale}em`;
 
 // Custom Heart Cursor
@@ -123,7 +125,8 @@ setInterval(createMirroredHeart, isMobile ? 500 : 300);
 
 // Rain Columns
 function createRainLine() {
-  const x = Math.random()*window.innerWidth;
+  const marginX = window.innerWidth*0.05;
+  const x = marginX + Math.random()*(window.innerWidth-2*marginX);
   const fontSize = 2.5*scale;
   const text = document.createElement('div');
   text.className='rainText';
@@ -132,11 +135,12 @@ function createRainLine() {
   text.style.left = x+'px';
   body.appendChild(text);
 
+  const mirrorX = window.innerWidth - x;
   const mirror = document.createElement('div');
   mirror.className='rainText';
   mirror.textContent='I love you';
   mirror.style.fontSize = `${fontSize}em`;
-  mirror.style.left = (window.innerWidth - x)+'px';
+  mirror.style.left = mirrorX+'px';
   body.appendChild(mirror);
 
   const duration = isMobile ? 1500 : 1200;
@@ -160,7 +164,7 @@ setInterval(createRainLine, isMobile ? 200 : 100);
 
 // Burst Function
 function createBurst(x, y){
-  // White letters
+  // White letters first
   const whiteCount = isMobile ? 4 : 8;
   const whiteLetters = [];
   for(let i=0;i<whiteCount;i++){
@@ -236,7 +240,7 @@ function createBurst(x, y){
       requestAnimationFrame(animate);
     }
 
-    // Fade white letters
+    // Fade white letters after pink letters appear
     setTimeout(()=>{
       whiteLetters.forEach(burst=>{
         const startFade = performance.now();
